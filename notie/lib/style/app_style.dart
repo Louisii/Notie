@@ -20,4 +20,10 @@ class AppStyle {
 
   static TextStyle mainTitle =
       GoogleFonts.roboto(fontSize: 18.0, fontWeight: FontWeight.bold);
+
+  static TextStyle mainContent =
+      GoogleFonts.roboto(fontSize: 16.0, fontWeight: FontWeight.normal);
+
+  static TextStyle dateTitle =
+      GoogleFonts.roboto(fontSize: 13.0, fontWeight: FontWeight.w500);
 }
