@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream:
-                    FirebaseFirestore.instance.collection("Notes").snapshots(),
+                    FirebaseFirestore.instance.collection("notes").snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   //checking the connection state, if still loading display loading bar
                   if (snapshot.connectionState == ConnectionState.waiting) {
