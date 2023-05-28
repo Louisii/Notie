@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:notie/screens/note_editor.dart';
 import 'package:notie/style/app_style.dart';
 
 class NoteReaderScreen extends StatefulWidget {
@@ -45,6 +46,29 @@ class _NoteReaderScreenState extends State<NoteReaderScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NoteEditorScreen(widget.doc),
+                ),
+              );
+            },
+            label: const Icon(Icons.edit),
+          ),
+          const SizedBox(height: 16.0), // Add spacing between the two buttons
+          FloatingActionButton.extended(
+            onPressed: () {
+              // Handle the second button's action
+            },
+            label: const Icon(Icons.delete),
+          ),
+        ],
       ),
     );
   }

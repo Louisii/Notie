@@ -54,8 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   if (snapshot.hasData) {
                     return GridView(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2),
                       children: snapshot.data!.docs
                           .map((note) => noteCard(() {
                                 Navigator.push(
@@ -80,8 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const NoteEditorScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NoteEditorScreen(null),
+            ),
+          );
         },
         label: const Text("Add Note"),
         icon: const Icon(Icons.add),

@@ -6,16 +6,38 @@ import 'package:intl/intl.dart';
 import 'package:notie/style/app_style.dart';
 
 class NoteEditorScreen extends StatefulWidget {
-  const NoteEditorScreen({super.key});
+  final QueryDocumentSnapshot? doc; // Pass the QueryDocumentSnapshot
+
+  const NoteEditorScreen(this.doc, {Key? key}) : super(key: key);
+
   @override
-  State<NoteEditorScreen> createState() => _NoteEditorScreenState();
+  _NoteEditorScreenState createState() => _NoteEditorScreenState();
 }
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   int color_id = Random().nextInt(AppStyle.cardsColor.length);
   String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
-  final TextEditingController _titleControler = TextEditingController();
-  final TextEditingController _mainControler = TextEditingController();
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _contentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Populate the editor fields if the snapshot is not null
+    if (widget.doc != null) {
+      _titleController.text = widget.doc!['note_title'];
+      _contentController.text = widget.doc!['note_content'];
+      color_id = widget.doc!['color_id'];
+      date = widget.doc!['creation_date'];
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +58,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: _titleControler,
+              controller: _titleController,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "Note Title",
+                labelText: 'Title',
               ),
               style: AppStyle.mainTitle,
             ),
@@ -50,34 +72,45 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               date,
               style: AppStyle.dateTitle,
             ),
-            const SizedBox(
-              height: 28.0,
-            ),
             TextField(
-              controller: _mainControler,
+              controller: _contentController,
               keyboardType: TextInputType.multiline,
               maxLines: null,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: "Note Content",
+                labelText: 'Content',
               ),
               style: AppStyle.mainContent,
-            )
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppStyle.accentColor,
-        onPressed: () async {
-          FirebaseFirestore.instance.collection("notes").add({
-            "note_title": _titleControler.text,
-            "creation_date": date,
-            "note_content": _mainControler.text,
-            "color_id": color_id,
-          }).then((value) {
-            print(value.id);
-            Navigator.pop(context);
-          }).catchError((error) => print("Fail to add new note due to $error"));
+        onPressed: () {
+          if (widget.doc != null) {
+            // Handle update logic for existing note
+            // Update the note using the Firestore update method
+            widget.doc!.reference.update({
+              'note_title': _titleController.text,
+              'note_content': _contentController.text,
+              // Add any other fields you want to update
+            }).then((_) {
+              Navigator.pop(context); // Go back to the previous screen
+            });
+          } else {
+            // Handle create logic for new note
+            // Create a new note using the Firestore set method
+            FirebaseFirestore.instance.collection('notes').add({
+              'note_title': _titleController.text,
+              'creation_date': date,
+              'note_content': _contentController.text,
+              'color_id': color_id,
+              // Add any other fields you want to include
+            }).then((_) {
+              Navigator.pop(context); // Go back to the previous screen
+            }).catchError(
+                (error) => print("Fail to add new note due to $error"));
+          }
         },
         child: const Icon(Icons.save),
       ),
