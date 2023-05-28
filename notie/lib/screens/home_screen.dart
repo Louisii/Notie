@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppStyle.mainColor,
       appBar: AppBar(
         elevation: 0.0,
-        title: Text("Notie"),
+        title: const Text("Notie"),
         centerTitle: true,
         backgroundColor: AppStyle.mainColor,
       ),
@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 22,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20.0,
             ),
             Expanded(
@@ -48,13 +48,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   //checking the connection state, if still loading display loading bar
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
+                    return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
                   if (snapshot.hasData) {
                     return GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2),
                       children: snapshot.data!.docs
                           .map((note) => noteCard(() {
@@ -81,10 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => NoteEditorScreen()));
+              MaterialPageRoute(builder: (context) => const NoteEditorScreen()));
         },
-        label: Text("Add Note"),
-        icon: Icon(Icons.add),
+        label: const Text("Add Note"),
+        icon: const Icon(Icons.add),
       ),
     );
   }
