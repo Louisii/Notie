@@ -64,7 +64,36 @@ class _NoteReaderScreenState extends State<NoteReaderScreen> {
           const SizedBox(height: 16.0), // Add spacing between the two buttons
           FloatingActionButton.extended(
             onPressed: () {
-              // Handle the second button's action
+              // Show a confirmation dialog before deleting the note
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Delete Note'),
+                    content: const Text(
+                        'Are you sure you want to delete this note?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Delete the note from Firestore
+                          widget.doc.reference.delete();
+
+                          Navigator.pop(context); // Close the dialog
+                          Navigator.pop(
+                              context); // Go back to the previous screen
+                        },
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
             label: const Icon(Icons.delete),
           ),
