@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:notie/screens/note_editor.dart';
 import 'package:notie/screens/note_reader.dart';
 import 'package:notie/style/app_style.dart';
@@ -14,6 +15,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,25 +49,41 @@ class _HomeScreenState extends State<HomeScreen> {
                 stream:
                     FirebaseFirestore.instance.collection("notes").snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  //checking the connection state, if still loading display loading bar
+                  // Checking the connection state, if still loading display loading bar
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
                   if (snapshot.hasData) {
+                    // Get the document list from the snapshot
+                    List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+                    // Sort the documents by the creation_date property
+                    documents.sort((a, b) {
+                      String dateStringA = a['creation_date'];
+                      String dateStringB = b['creation_date'];
+                      DateTime dateA =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
+                      DateTime dateB =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
+                      return dateB.compareTo(dateA); // Descending order
+                    });
+
                     return GridView(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2),
-                      children: snapshot.data!.docs
+                        crossAxisCount: 2,
+                      ),
+                      children: documents
                           .map((note) => noteCard(() {
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          NoteReaderScreen(note),
-                                    ));
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        NoteReaderScreen(note),
+                                  ),
+                                );
                               }, note))
                           .toList(),
                     );
@@ -79,18 +98,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NoteEditorScreen(null),
-            ),
-          );
+          setState(() {
+            _isExpanded = !_isExpanded;
+          });
         },
-        label: const Text("Add Note"),
-        icon: const Icon(Icons.add),
+        child: _isExpanded ? const Icon(Icons.close) : const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: _isExpanded
+          ? Padding(
+              padding: const EdgeInsets.only(right: 18),
+              child: BottomAppBar(
+                child: Container(
+                  color: AppStyle.mainColor, // Set the background color
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const NoteEditorScreen(null),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                              100, 40), // Set the minimum size of the button
+                        ),
+                        child: const Text("New Note"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle new list creation
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                              100, 40), // Set the minimum size of the button
+                        ),
+                        child: const Text("New List"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
