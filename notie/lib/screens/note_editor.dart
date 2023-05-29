@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:notie/screens/home_screen.dart';
 import 'package:notie/style/app_style.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -96,6 +97,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               // Add any other fields you want to update
             }).then((_) {
               Navigator.pop(context); // Go back to the previous screen
+              Navigator.pop(context);
             });
           } else {
             // Handle create logic for new note
