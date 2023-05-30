@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notie/screens/home_screen.dart';
 import 'package:notie/style/app_style.dart';
 
 class ListEditorScreen extends StatefulWidget {
@@ -18,9 +17,9 @@ class ListEditorScreen extends StatefulWidget {
 class _ListEditorScreenState extends State<ListEditorScreen> {
   int color_id = Random().nextInt(AppStyle.cardsColor.length);
   String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
-  TextEditingController _titleController = TextEditingController();
-  List<TextEditingController> _itemTitleControllers = [];
-  List<bool> _itemCompletedStatus = [];
+  final TextEditingController _titleController = TextEditingController();
+  final List<TextEditingController> _itemTitleControllers = [];
+  final List<bool> _itemCompletedStatus = [];
 
   @override
   void initState() {

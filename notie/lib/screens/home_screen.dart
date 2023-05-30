@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(100, 40),
+                          minimumSize: const Size(100, 40),
                         ),
                         child: const Text("New Note"),
                       ),
@@ -189,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(100, 40),
+                          minimumSize: const Size(100, 40),
                         ),
                         child: const Text("New List"),
                       ),

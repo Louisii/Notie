@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notie/screens/home_screen.dart';
 import 'package:notie/style/app_style.dart';
 
 class NoteEditorScreen extends StatefulWidget {
@@ -18,8 +17,8 @@ class NoteEditorScreen extends StatefulWidget {
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   int color_id = Random().nextInt(AppStyle.cardsColor.length);
   String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
   @override
   void initState() {
