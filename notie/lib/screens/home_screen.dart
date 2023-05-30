@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:notie/screens/list_editor.dart';
 import 'package:notie/screens/note_editor.dart';
 import 'package:notie/screens/note_reader.dart';
 import 'package:notie/style/app_style.dart';
@@ -135,7 +136,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Handle new list creation
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ListEditorScreen(null),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(

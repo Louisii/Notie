@@ -19,15 +19,23 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
   int color_id = Random().nextInt(AppStyle.cardsColor.length);
   String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
   TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  List<TextEditingController> _itemTitleControllers = [];
+  List<bool> _itemCompletedStatus = [];
 
   @override
   void initState() {
     super.initState();
     // Populate the editor fields if the snapshot is not null
     if (widget.doc != null) {
-      _titleController.text = widget.doc!['note_title'];
-      _contentController.text = widget.doc!['note_content'];
+      _titleController.text = widget.doc!['list_title'];
+
+      final List<dynamic> itemList = widget.doc!['list_items'];
+      for (final item in itemList) {
+        _itemTitleControllers
+            .add(TextEditingController(text: item['item_title']));
+        _itemCompletedStatus.add(item['item_completed']);
+      }
+
       color_id = widget.doc!['color_id'];
       date = widget.doc!['creation_date'];
     }
@@ -36,7 +44,9 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    for (final controller in _itemTitleControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -49,7 +59,7 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
         elevation: 0.0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          "Add a new note",
+          "Add a new list",
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -62,7 +72,7 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
               controller: _titleController,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                labelText: 'Title',
+                labelText: 'List Title',
               ),
               style: AppStyle.mainTitle,
             ),
@@ -73,15 +83,23 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
               date,
               style: AppStyle.dateTitle,
             ),
-            TextField(
-              controller: _contentController,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                labelText: 'Content',
+            const SizedBox(height: 16.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _itemTitleControllers.length,
+                itemBuilder: (context, index) {
+                  return _buildListItem(index);
+                },
               ),
-              style: AppStyle.mainContent,
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  _itemTitleControllers.add(TextEditingController());
+                  _itemCompletedStatus.add(false);
+                });
+              },
+              icon: const Icon(Icons.add),
             ),
           ],
         ),
@@ -89,33 +107,72 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (widget.doc != null) {
-            // Handle update logic for existing note
-            // Update the note using the Firestore update method
+            // Handle update logic for existing list
+            // Update the list using the Firestore update method
+            final List<Map<String, dynamic>> itemList = [];
+            for (int i = 0; i < _itemTitleControllers.length; i++) {
+              itemList.add({
+                'item_title': _itemTitleControllers[i].text,
+                'item_completed': _itemCompletedStatus[i],
+              });
+            }
             widget.doc!.reference.update({
-              'note_title': _titleController.text,
-              'note_content': _contentController.text,
+              'list_title': _titleController.text,
+              'list_items': itemList,
               // Add any other fields you want to update
             }).then((_) {
               Navigator.pop(context); // Go back to the previous screen
               Navigator.pop(context);
             });
           } else {
-            // Handle create logic for new note
-            // Create a new note using the Firestore set method
-            FirebaseFirestore.instance.collection('notes').add({
-              'note_title': _titleController.text,
+            // Handle create logic for new list
+            // Create a new list using the Firestore set method
+            final List<Map<String, dynamic>> itemList = [];
+            for (int i = 0; i < _itemTitleControllers.length; i++) {
+              itemList.add({
+                'item_title': _itemTitleControllers[i].text,
+                'item_completed': _itemCompletedStatus[i],
+              });
+            }
+            FirebaseFirestore.instance.collection('lists').add({
+              'list_title': _titleController.text,
               'creation_date': date,
-              'note_content': _contentController.text,
+              'list_items': itemList,
               'color_id': color_id,
               // Add any other fields you want to include
             }).then((_) {
               Navigator.pop(context); // Go back to the previous screen
             }).catchError(
-                (error) => print("Fail to add new note due to $error"));
+                (error) => print("Failed to add new list due to $error"));
           }
         },
         child: const Icon(Icons.save),
       ),
+    );
+  }
+
+  Widget _buildListItem(int index) {
+    return Row(
+      children: [
+        Checkbox(
+          value: _itemCompletedStatus[index],
+          onChanged: (value) {
+            setState(() {
+              _itemCompletedStatus[index] = value ?? false;
+            });
+          },
+        ),
+        Expanded(
+          child: TextField(
+            controller: _itemTitleControllers[index],
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              labelText: 'Item Title',
+            ),
+            style: AppStyle.mainContent,
+          ),
+        ),
+      ],
     );
   }
 }
