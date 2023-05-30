@@ -122,7 +122,6 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
               // Add any other fields you want to update
             }).then((_) {
               Navigator.pop(context); // Go back to the previous screen
-              Navigator.pop(context);
             });
           } else {
             // Handle create logic for new list

@@ -6,7 +6,9 @@ import 'package:notie/screens/list_editor.dart';
 import 'package:notie/screens/note_editor.dart';
 import 'package:notie/screens/note_reader.dart';
 import 'package:notie/style/app_style.dart';
+
 import 'package:notie/widgets/note_card.dart';
+import 'package:notie/widgets/list_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -50,47 +52,92 @@ class _HomeScreenState extends State<HomeScreen> {
                 stream:
                     FirebaseFirestore.instance.collection("notes").snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  // Checking the connection state, if still loading display loading bar
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
                   if (snapshot.hasData) {
-                    // Get the document list from the snapshot
-                    List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
-
-                    // Sort the documents by the creation_date property
-                    documents.sort((a, b) {
+                    List<QueryDocumentSnapshot> noteDocuments = snapshot.data!.docs;
+                    noteDocuments.sort((a, b) {
                       String dateStringA = a['creation_date'];
                       String dateStringB = b['creation_date'];
-                      DateTime dateA =
-                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
-                      DateTime dateB =
-                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
+                      DateTime dateA = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
+                      DateTime dateB = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
                       return dateB.compareTo(dateA); // Descending order
                     });
 
-                    return GridView(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                    return GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                       ),
-                      children: documents
-                          .map((note) => noteCard(() {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        NoteReaderScreen(note),
-                                  ),
-                                );
-                              }, note))
-                          .toList(),
+                      itemCount: noteDocuments.length,
+                      itemBuilder: (context, index) {
+                        QueryDocumentSnapshot note = noteDocuments[index];
+                        return noteCard(() {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NoteReaderScreen(note),
+                            ),
+                          );
+                        }, note);
+                      },
                     );
                   }
                   return Text(
                     "There's no Notes",
+                    style: GoogleFonts.nunito(color: Colors.white),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            Text(
+              "Your recent lists",
+              style: GoogleFonts.roboto(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection("lists").snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasData) {
+                    List<QueryDocumentSnapshot> listDocuments = snapshot.data!.docs;
+                    listDocuments.sort((a, b) {
+                      String dateStringA = a['creation_date'];
+                      String dateStringB = b['creation_date'];
+                      DateTime dateA = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
+                      DateTime dateB = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
+                      return dateB.compareTo(dateA); // Descending order
+                    });
+
+                    return ListView.builder(
+                      itemCount: listDocuments.length,
+                      itemBuilder: (context, index) {
+                        QueryDocumentSnapshot list = listDocuments[index];
+                        return listCard(() {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ListEditorScreen(list),
+                            ),
+                          );
+                        }, list);
+                      },
+                    );
+                  }
+                  return Text(
+                    "There are no Lists",
                     style: GoogleFonts.nunito(color: Colors.white),
                   );
                 },
@@ -113,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(right: 18),
               child: BottomAppBar(
                 child: Container(
-                  color: AppStyle.mainColor, // Set the background color
+                  color: AppStyle.mainColor,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -123,14 +170,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const NoteEditorScreen(null),
+                              builder: (context) => const NoteEditorScreen(null),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                              100, 40), // Set the minimum size of the button
+                          minimumSize: Size(100, 40),
                         ),
                         child: const Text("New Note"),
                       ),
@@ -139,14 +184,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const ListEditorScreen(null),
+                              builder: (context) => const ListEditorScreen(null),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                              100, 40), // Set the minimum size of the button
+                          minimumSize: Size(100, 40),
                         ),
                         child: const Text("New List"),
                       ),
