@@ -44,7 +44,14 @@ Widget listCard(Function()? onTap, QueryDocumentSnapshot doc) {
 
 String _buildListItems(List<dynamic> listItems) {
   String items = '';
-  for (var item in listItems) {
+  for (var i = 0; i < listItems.length; i++) {
+    var item = listItems[i];
+
+    if (i == 2) {
+      items += '...';
+      break; // Stop the loop when the index is two
+    }
+
     if (item['item_completed']) {
       items += '✓ ${item['item_title']}\n';
     } else {

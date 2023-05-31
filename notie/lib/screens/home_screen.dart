@@ -58,18 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                   if (snapshot.hasData) {
-                    List<QueryDocumentSnapshot> noteDocuments = snapshot.data!.docs;
+                    List<QueryDocumentSnapshot> noteDocuments =
+                        snapshot.data!.docs;
                     noteDocuments.sort((a, b) {
                       String dateStringA = a['creation_date'];
                       String dateStringB = b['creation_date'];
-                      DateTime dateA = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
-                      DateTime dateB = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
+                      DateTime dateA =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
+                      DateTime dateB =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
                       return dateB.compareTo(dateA); // Descending order
                     });
 
                     return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
+                        childAspectRatio: 1.4,
                       ),
                       itemCount: noteDocuments.length,
                       itemBuilder: (context, index) {
@@ -104,7 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20.0),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection("lists").snapshots(),
+                stream:
+                    FirebaseFirestore.instance.collection("lists").snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -112,17 +118,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                   if (snapshot.hasData) {
-                    List<QueryDocumentSnapshot> listDocuments = snapshot.data!.docs;
+                    List<QueryDocumentSnapshot> listDocuments =
+                        snapshot.data!.docs;
                     listDocuments.sort((a, b) {
                       String dateStringA = a['creation_date'];
                       String dateStringB = b['creation_date'];
-                      DateTime dateA = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
-                      DateTime dateB = DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
+                      DateTime dateA =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringA);
+                      DateTime dateB =
+                          DateFormat('dd/MM/yyyy hh:mm a').parse(dateStringB);
                       return dateB.compareTo(dateA); // Descending order
                     });
 
                     return ListView.builder(
                       itemCount: listDocuments.length,
+                      itemExtent: 150,
                       itemBuilder: (context, index) {
                         QueryDocumentSnapshot list = listDocuments[index];
                         return listCard(() {
@@ -170,7 +180,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const NoteEditorScreen(null),
+                              builder: (context) =>
+                                  const NoteEditorScreen(null),
                             ),
                           );
                         },
@@ -184,7 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ListEditorScreen(null),
+                              builder: (context) =>
+                                  const ListEditorScreen(null),
                             ),
                           );
                         },

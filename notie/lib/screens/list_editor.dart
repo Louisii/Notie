@@ -170,6 +170,15 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
             style: AppStyle.mainContent,
           ),
         ),
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            setState(() {
+              _itemTitleControllers.removeAt(index);
+              _itemCompletedStatus.removeAt(index);
+            });
+          },
+        ),
       ],
     );
   }
