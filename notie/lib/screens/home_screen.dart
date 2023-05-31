@@ -31,7 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppStyle.mainColor,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(
+            left: 16.0, bottom: 8.0, right: 16.0, top: 8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(
-              height: 20.0,
+              height: 8.0,
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -60,6 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasData) {
                     List<QueryDocumentSnapshot> noteDocuments =
                         snapshot.data!.docs;
+                    if (noteDocuments.isEmpty) {
+                      return Text(
+                        "There's no Notes",
+                        style: GoogleFonts.nunito(color: Colors.white),
+                      );
+                    }
                     noteDocuments.sort((a, b) {
                       String dateStringA = a['creation_date'];
                       String dateStringB = b['creation_date'];
@@ -91,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                   return Text(
-                    "There's no Notes",
+                    "Add a new Note to start!",
                     style: GoogleFonts.nunito(color: Colors.white),
                   );
                 },
@@ -106,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 22,
               ),
             ),
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 8.0),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream:
@@ -120,6 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasData) {
                     List<QueryDocumentSnapshot> listDocuments =
                         snapshot.data!.docs;
+                    if (listDocuments.isEmpty) {
+                      return Text(
+                        "Add a new List to start!",
+                        style: GoogleFonts.nunito(color: Colors.white),
+                      );
+                    }
                     listDocuments.sort((a, b) {
                       String dateStringA = a['creation_date'];
                       String dateStringB = b['creation_date'];
@@ -156,61 +169,53 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _isExpanded = !_isExpanded;
-          });
-        },
-        child: _isExpanded ? const Icon(Icons.close) : const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _isExpanded
-          ? Padding(
-              padding: const EdgeInsets.only(right: 18),
-              child: BottomAppBar(
-                child: Container(
-                  color: AppStyle.mainColor,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const NoteEditorScreen(null),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(100, 40),
-                        ),
-                        child: const Text("New Note"),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: BottomAppBar(
+          child: Container(
+            color: AppStyle.mainColor,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Center the buttons horizontally
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Center the buttons vertically
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NoteEditorScreen(null),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ListEditorScreen(null),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(100, 40),
-                        ),
-                        child: const Text("New List"),
-                      ),
-                    ],
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(100, 40),
                   ),
+                  child: const Text("New Note"),
                 ),
-              ),
-            )
-          : null,
+                const SizedBox(
+                    width: 16), // Add a gap of 16 pixels between the buttons
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ListEditorScreen(null),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(100, 40),
+                  ),
+                  child: const Text("New List"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
