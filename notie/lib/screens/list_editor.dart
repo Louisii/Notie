@@ -58,7 +58,7 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
         elevation: 0.0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          "Add a new list",
+          "List",
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -71,7 +71,7 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
               controller: _titleController,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                labelText: 'List Title',
+                hintText: 'List Title',
               ),
               style: AppStyle.mainTitle,
             ),
@@ -91,60 +91,120 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
                 },
               ),
             ),
-            IconButton(
+            ElevatedButton.icon(
               onPressed: () {
                 setState(() {
                   _itemTitleControllers.add(TextEditingController());
                   _itemCompletedStatus.add(false);
                 });
               },
-              icon: const Icon(Icons.add),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.black, width: 2.0),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+              icon: Icon(Icons.add,
+                  color: Colors.black), // Set the color of the icon to black
+              label: Text(
+                'Add Item',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (widget.doc != null) {
-            // Handle update logic for existing list
-            // Update the list using the Firestore update method
-            final List<Map<String, dynamic>> itemList = [];
-            for (int i = 0; i < _itemTitleControllers.length; i++) {
-              itemList.add({
-                'item_title': _itemTitleControllers[i].text,
-                'item_completed': _itemCompletedStatus[i],
-              });
-            }
-            widget.doc!.reference.update({
-              'list_title': _titleController.text,
-              'list_items': itemList,
-              // Add any other fields you want to update
-            }).then((_) {
-              Navigator.pop(context); // Go back to the previous screen
-            });
-          } else {
-            // Handle create logic for new list
-            // Create a new list using the Firestore set method
-            final List<Map<String, dynamic>> itemList = [];
-            for (int i = 0; i < _itemTitleControllers.length; i++) {
-              itemList.add({
-                'item_title': _itemTitleControllers[i].text,
-                'item_completed': _itemCompletedStatus[i],
-              });
-            }
-            FirebaseFirestore.instance.collection('lists').add({
-              'list_title': _titleController.text,
-              'creation_date': date,
-              'list_items': itemList,
-              'color_id': color_id,
-              // Add any other fields you want to include
-            }).then((_) {
-              Navigator.pop(context); // Go back to the previous screen
-            }).catchError(
-                (error) => print("Failed to add new list due to $error"));
-          }
-        },
-        child: const Icon(Icons.save),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: () {
+              if (widget.doc != null) {
+                // Handle update logic for existing list
+                // Update the list using the Firestore update method
+                final List<Map<String, dynamic>> itemList = [];
+                for (int i = 0; i < _itemTitleControllers.length; i++) {
+                  itemList.add({
+                    'item_title': _itemTitleControllers[i].text,
+                    'item_completed': _itemCompletedStatus[i],
+                  });
+                }
+                widget.doc!.reference.update({
+                  'list_title': _titleController.text,
+                  'list_items': itemList,
+                  // Add any other fields you want to update
+                }).then((_) {
+                  Navigator.pop(context); // Go back to the previous screen
+                });
+              } else {
+                // Handle create logic for new list
+                // Create a new list using the Firestore set method
+                final List<Map<String, dynamic>> itemList = [];
+                for (int i = 0; i < _itemTitleControllers.length; i++) {
+                  itemList.add({
+                    'item_title': _itemTitleControllers[i].text,
+                    'item_completed': _itemCompletedStatus[i],
+                  });
+                }
+                FirebaseFirestore.instance.collection('lists').add({
+                  'list_title': _titleController.text,
+                  'creation_date': date,
+                  'list_items': itemList,
+                  'color_id': color_id,
+                  // Add any other fields you want to include
+                }).then((_) {
+                  Navigator.pop(context); // Go back to the previous screen
+                }).catchError(
+                    (error) => print("Failed to add new list due to $error"));
+              }
+            },
+            label: const Icon(Icons.save),
+          ),
+          const SizedBox(height: 16.0), // Add spacing between the two buttons
+          FloatingActionButton.extended(
+            onPressed: () {
+              // Show a confirmation dialog before deleting the list
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Delete List'),
+                    content: const Text(
+                        'Are you sure you want to delete this list?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Delete the list from Firestore
+                          if (widget.doc != null) {
+                            widget.doc!.reference.delete();
+                          }
+
+                          Navigator.pop(context); // Close the dialog
+                          Navigator.pop(
+                              context); // Go back to the previous screen
+                        },
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            label: const Icon(Icons.delete),
+          ),
+        ],
       ),
     );
   }
@@ -165,7 +225,7 @@ class _ListEditorScreenState extends State<ListEditorScreen> {
             controller: _itemTitleControllers[index],
             decoration: const InputDecoration(
               border: InputBorder.none,
-              labelText: 'Item Title',
+              hintText: 'Item Title',
             ),
             style: AppStyle.mainContent,
           ),
