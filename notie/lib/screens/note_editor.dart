@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:notie/screens/home_screen.dart';
 import 'package:notie/style/app_style.dart';
 
 class NoteEditorScreen extends StatefulWidget {
